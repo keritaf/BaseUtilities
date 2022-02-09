@@ -20,15 +20,20 @@ namespace BaseUtils
 {
     public static class BitMapHelpers
     {
-        public static Bitmap ReplaceColourInBitmap(Bitmap source, System.Drawing.Imaging.ColorMap[] remap)
+        public static Bitmap ReplaceColourInBitmap(Bitmap source, System.Drawing.Imaging.ColorMap[] remap, Func<int, int> scaler = null)
         {
-            Bitmap newmap = new Bitmap(source.Width, source.Height);
+            Func<int, int> scalerInternal = scaler ?? (v => v);
+
+            var targetWidth = scalerInternal(source.Width);
+            var targetHeight = scalerInternal(source.Height);
+
+            Bitmap newmap = new Bitmap(targetWidth, targetHeight);
 
             System.Drawing.Imaging.ImageAttributes ia = new System.Drawing.Imaging.ImageAttributes();
             ia.SetRemapTable(remap, System.Drawing.Imaging.ColorAdjustType.Bitmap);
 
             using (Graphics gr = Graphics.FromImage(newmap))
-                gr.DrawImage(source, new Rectangle(0, 0, source.Width, source.Height), 0, 0, source.Width, source.Height, GraphicsUnit.Pixel, ia);
+                gr.DrawImage(source, new Rectangle(0, 0, targetWidth, targetHeight), 0, 0, source.Width, source.Height, GraphicsUnit.Pixel, ia);
 
             return newmap;
         }
